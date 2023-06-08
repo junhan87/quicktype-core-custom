@@ -1,0 +1,1 @@
+# quicktype-core-custom
