@@ -279,6 +279,11 @@ class Run {
         if (this._options.debugPrintGraph) {
             graph.printGraph();
         }
+        // junhan87 fix start
+        typeBuilder.integerFormatMap.forEach((value, key) => {
+            graph.addIntegerFormat(key, value);
+        });
+        // junhan87 fix end
         return graph;
     }
     makeSimpleTextResult(lines) {

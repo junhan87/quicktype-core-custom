@@ -57,7 +57,16 @@ class TypeBuilder {
         this._typeForIdentity = new collection_utils_1.EqualityMap();
         Support_1.assert(!_addProvenanceAttributes || !inheritsProvenanceAttributes, "We can't both inherit as well as add provenance");
         this.typeGraph = new TypeGraph_1.TypeGraph(this, typeGraphSerial, _addProvenanceAttributes || inheritsProvenanceAttributes);
+        this._integerFormatMap = new Map();  // junhan87 fix
     }
+    // junhan87 fix start
+    get integerFormatMap() {
+        return this._integerFormatMap;
+    }
+    addIntegerFormat(key, value) {
+        this._integerFormatMap.set(key, value);
+    }
+    // junhan87 fix end
     addTopLevel(name, tref) {
         // assert(t.typeGraph === this.typeGraph, "Adding top-level to wrong type graph");
         Support_1.assert(!this.topLevels.has(name), "Trying to add top-level with existing name");
