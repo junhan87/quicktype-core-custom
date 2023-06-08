@@ -1,0 +1,45 @@
+{
+  "name": "quicktype-core-custom",
+  "version": "0.0.0",
+  "description": "customized quicktype-core library",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/junhan87/quicktype-core-custom",
+  "scripts": {
+  },
+  "dependencies": {
+    "collection-utils": "^1.0.1",
+    "js-base64": "^2.4.3",
+    "pako": "^1.0.6",
+    "pluralize": "^7.0.0",
+    "@mark.probst/unicode-properties": "~1.1.0",
+    "urijs": "^1.19.1",
+    "wordwrap": "^1.0.0",
+    "yaml": "^1.5.0",
+    "readable-stream": "2.3.0",
+    "isomorphic-fetch": "^2.2.1",
+    "browser-or-node": "^1.2.1"
+  },
+  "devDependencies": {
+    "@types/urijs": "^1.19.8",
+    "@types/js-base64": "^2.3.1",
+    "@types/node": "^8.10.10",
+    "@types/pako": "^1.0.0",
+    "@types/pluralize": "0.0.28",
+    "@types/yaml": "^1.0.2",
+    "typescript": "~3.2.1",
+    "tslint": "^5.11.0",
+    "@types/readable-stream": "2.3.0",
+    "@types/browser-or-node": "^1.2.0"
+  },
+  "files": [
+    "dist/**"
+  ],
+  "browser": {
+    "fs": false
+  },
+  "config": {
+    "commit": "2176e1ae35410a1e0da1df90b6946cfa58e897fd"
+  }
+}
