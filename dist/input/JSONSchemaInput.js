@@ -542,11 +542,16 @@ function addTypesInSchema(resolver, typeBuilder, references, attributeProducers)
                 const additionalRequired = collection_utils_1.setSubtract(required, props.keys());
                 if (additionalRequired.size > 0) {
                     const t = additionalPropertiesType;
+                    // junhan87 fix start
+                    /*
                     if (t === undefined) {
                         return Messages_1.messageError("SchemaAdditionalTypesForbidRequired", withRef(loc));
+                    }*/
+                    // junhan87 fix end
+                    if (t !== undefined) {
+                        const additionalProps = collection_utils_1.mapFromIterable(additionalRequired, _name => typeBuilder.makeClassProperty(t, false));
+                        collection_utils_1.mapMergeInto(props, additionalProps);
                     }
-                    const additionalProps = collection_utils_1.mapFromIterable(additionalRequired, _name => typeBuilder.makeClassProperty(t, false));
-                    collection_utils_1.mapMergeInto(props, additionalProps);
                 }
                 return typeBuilder.getUniqueObjectType(attributes, props, additionalPropertiesType);
             });
