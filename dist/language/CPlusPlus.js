@@ -427,6 +427,7 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
         }
         this.setupGlobalNames();
         this._integerFormatMap = new Map(renderContext.typeGraph.integerFormatMap);    // junhan87 fix
+        this._optionalMemberSet = new Set();    // junhan87 fix
     }
     // junhan87 fix start
     get integerFormatMap() {
@@ -731,6 +732,7 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
             const nullable = TypeUtils_1.nullableFromUnion(unionType);
             if (nullable === null)
                 return [this.ourQualifier(inJsonNamespace), this.nameForNamedType(unionType)];
+                this._optionalMemberSet.add(jsonName);
             return [
                 optionalType,
                 "<",
@@ -1034,7 +1036,29 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
                 else {
                     getter = [name];
                 }
-                this.emitLine("j[", this._stringType.wrapEncodingChange([ourQualifier], this._stringType.getType(), this.NarrowString.getType(), this._stringType.createStringLiteral([Strings_1.stringEscape(json)])), "] = ", this._stringType.wrapEncodingChange([ourQualifier], cppType, toType, ["x.", getter]), ";");
+                /* junhan87 fix start */
+                //this.emitLine("j[", this._stringType.wrapEncodingChange([ourQualifier], this._stringType.getType(), this.NarrowString.getType(), this._stringType.createStringLiteral([Strings_1.stringEscape(json)])), "] = ", this._stringType.wrapEncodingChange([ourQualifier], cppType, toType, ["x.", getter]), ";");
+                let assignment = [
+                    "j[",
+                    this._stringType.wrapEncodingChange([ourQualifier], this._stringType.getType(), this.NarrowString.getType(), this._stringType.createStringLiteral([(0, Strings_1.stringEscape)(json)])),
+                    "] = ",
+                    this._stringType.wrapEncodingChange([ourQualifier], cppType, toType, ["x.", getter]),
+                    ";"
+                ];
+                if (this._optionalMemberSet.has(json)) {
+                    this.emitBlock([
+                        "if (",
+                        this._stringType.wrapEncodingChange([ourQualifier], cppType, toType, ["x.", getter]),
+                        ")"
+                    ], false, () => {
+                        this.emitLine(assignment);
+                    });
+                }
+                else {
+                    this.emitLine(assignment);
+
+                }
+                /* junhan87 fix end */
             });
         });
     }
