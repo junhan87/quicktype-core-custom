@@ -1,6 +1,6 @@
 {
   "name": "quicktype-core-custom",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "customized quicktype-core library",
   "license": "Apache-2.0",
   "main": "dist/index.js",
