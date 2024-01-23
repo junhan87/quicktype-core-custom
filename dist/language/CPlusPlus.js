@@ -426,13 +426,7 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
             this._variantIndexMethodName = "index";
         }
         this.setupGlobalNames();
-        this._integerFormatMap = new Map(renderContext.typeGraph.integerFormatMap);    // junhan87 fix
     }
-    // junhan87 fix start
-    get integerFormatMap() {
-        return this._integerFormatMap;
-    }
-    // junhan87 fix end
     getConstraintMembers() {
         return [
             {
@@ -637,9 +631,9 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
             this.emitBlock(["namespace ", first], false, () => this.emitNamespaces(namesArray.slice(1), f), namesArray.length === 1);
         }
     }
-    cppTypeInOptional(nonNulls, ctx, withIssues, forceNarrowString, jsonName) { // junhan87 fix
+    cppTypeInOptional(nonNulls, ctx, withIssues, forceNarrowString) {
         if (nonNulls.size === 1) {
-            return this.cppType(Support_1.defined(collection_utils_1.iterableFirst(nonNulls)), ctx, withIssues, forceNarrowString, { isOptional: false }, jsonName);   // junhan87 fix
+            return this.cppType(Support_1.defined(collection_utils_1.iterableFirst(nonNulls)), ctx, withIssues, forceNarrowString, { isOptional: false });   // junhan87 fix
         }
         const typeList = [];
         for (const t of nonNulls) {
@@ -650,7 +644,7 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
                 needsForwardIndirection: true,
                 needsOptionalIndirection: false,
                 inJsonNamespace: ctx.inJsonNamespace
-            }, withIssues, false, jsonName, { isOptional: false }));   // junhan87 fix
+            }, withIssues, false, { isOptional: false }));   // junhan87 fix
         }
         return [this._variantType, "<", typeList, ">"];
     }
@@ -675,31 +669,14 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
             return typeSrc;
         return [optionalType, "<", typeSrc, ">"];
     }
-    cppType(t, ctx, withIssues, forceNarrowString, property, jsonName) {
+    cppType(t, ctx, withIssues, forceNarrowString, property) {
         const inJsonNamespace = ctx.inJsonNamespace;
         return TypeUtils_1.matchType(t,
             _anyType => Source_1.maybeAnnotated(withIssues, Annotation_1.anyTypeIssueAnnotation, [this.jsonQualifier(inJsonNamespace), "json"]),
             _nullType => Source_1.maybeAnnotated(withIssues, Annotation_1.nullTypeIssueAnnotation, [this.jsonQualifier(inJsonNamespace), "json"]),
             _boolType => "bool",
             // junhan87 fix start
-            //_integerType => "int64_t",
-            _integerType => {
-                const convertIntegerType = new Map([
-                    ["int8", "int8_t"],
-                    ["int16", "int16_t"],
-                    ["int32", "int32_t"],
-                    ["uint8", "uint8_t"],
-                    ["uint16", "uint16_t"],
-                    ["uint32", "uint32_t"],
-                ]);
-                if (this._integerFormatMap.has(jsonName) && convertIntegerType.has(this._integerFormatMap.get(jsonName))) {
-                    return convertIntegerType.get(this._integerFormatMap.get(jsonName));
-                }
-                else {
-                    return "int64_t";
-                }
-            },
-            // junhan87 fix end
+            _integerType => "int64_t",
             _doubleType => "double",
             _stringType => {
             if (forceNarrowString) {
@@ -710,7 +687,7 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
             }
         }, arrayType => [
             "std::vector<",
-                this.cppType(arrayType.items, { needsForwardIndirection: false, needsOptionalIndirection: true, inJsonNamespace }, withIssues, forceNarrowString, { isOptional: false }, jsonName),
+                this.cppType(arrayType.items, { needsForwardIndirection: false, needsOptionalIndirection: true, inJsonNamespace }, withIssues, forceNarrowString, { isOptional: false }),
             ">"
         ], classType => this.variantIndirection(ctx.needsForwardIndirection && this.isForwardDeclaredType(classType), [
             this.ourQualifier(inJsonNamespace),
@@ -724,7 +701,7 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
                 "std::map<",
                 keyType,
                 ", ",
-                this.cppType(mapType.values, { needsForwardIndirection: false, needsOptionalIndirection: true, inJsonNamespace }, withIssues, forceNarrowString, { isOptional: false }, jsonName),
+                this.cppType(mapType.values, { needsForwardIndirection: false, needsOptionalIndirection: true, inJsonNamespace }, withIssues, forceNarrowString, { isOptional: false }),
                 ">"
             ];
         }, enumType => [this.ourQualifier(inJsonNamespace), this.nameForNamedType(enumType)], unionType => {
@@ -735,7 +712,7 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
             return [
                 optionalType,
                 "<",
-                this.cppType(nullable, { needsForwardIndirection: false, needsOptionalIndirection: false, inJsonNamespace }, withIssues, forceNarrowString, { isOptional: false }, jsonName),
+                this.cppType(nullable, { needsForwardIndirection: false, needsOptionalIndirection: false, inJsonNamespace }, withIssues, forceNarrowString, { isOptional: false }),
                 ">"
             ];
         });
@@ -818,7 +795,7 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
         if (this._options.codeFormat) {
             this.emitLine("private:");
             this.forEachClassProperty(c, "none", (name, jsonName, property) => {
-                this.emitMember(this.cppType(property.type, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: false }, true, false, { isOptional: false }, jsonName), name);
+                this.emitMember(this.cppType(property.type, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: false }, true, false, { isOptional: false }), name);
                 if (constraints !== undefined && constraints.has(jsonName)) {
                     /** FIXME!!! NameStyle will/can collide with other Names */
                     const cnst = this.lookupGlobalName(GlobalNames.ClassMemberConstraints);
@@ -831,11 +808,11 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
         this.forEachClassProperty(c, "none", (name, jsonName, property) => {
             this.emitDescription(this.descriptionForClassProperty(c, jsonName));
             if (!this._options.codeFormat) {
-                this.emitMember(this.cppType(property.type, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: false }, true, false, { isOptional: false }, jsonName), name);
+                this.emitMember(this.cppType(property.type, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: false }, true, false, { isOptional: false }), name);
             }
             else {
                 const [getterName, mutableGetterName, setterName] = Support_1.defined(this._gettersAndSettersForPropertyName.get(name));
-                const rendered = this.cppType(property.type, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: false }, true, false, { isOptional: false }, jsonName);
+                const rendered = this.cppType(property.type, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: false }, true, false, { isOptional: false });
                 /**
                  * fix for optional type -> e.g. unique_ptrs can't be copied
                  * One might as why the "this->xxx = value". Simple if we have
@@ -959,7 +936,6 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
             });
         }
     }
-
     emitClassFunctions(c, className) {
         const ourQualifier = this.ourQualifier(true);
         let cppType;
@@ -982,12 +958,12 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
                             needsForwardIndirection: false,
                             needsOptionalIndirection: false,
                             inJsonNamespace: true
-                        }, false, true, json);  // junhan87 fix
+                        }, false, true);
                         toType = this.cppTypeInOptional(nonNulls, {
                             needsForwardIndirection: false,
                             needsOptionalIndirection: false,
                             inJsonNamespace: true
-                        }, false, false, json);  // junhan87 fix
+                        }, false, false);
                         this.emitLine(assignment.wrap([], [
                             this._stringType.wrapEncodingChange([ourQualifier], [optionalType, "<", cppType, ">"], [optionalType, "<", toType, ">"], [
                                 ourQualifier,
@@ -1010,8 +986,8 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
                     ]), ";");
                     return;
                 }
-                cppType = this.cppType(t, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: true }, false, true, { isOptional: false }, json);
-                toType = this.cppType(t, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: true }, false, false, { isOptional: false }, json);
+                cppType = this.cppType(t, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: true }, false, true, { isOptional: false });
+                toType = this.cppType(t, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: true }, false, false, { isOptional: false });
                 this.emitLine(assignment.wrap([], this._stringType.wrapEncodingChange([ourQualifier], cppType, toType, [
                     "j.at(",
                     this._stringType.wrapEncodingChange([ourQualifier], this._stringType.getType(), this.NarrowString.getType(), this._stringType.createStringLiteral([Strings_1.stringEscape(json)])),
@@ -1031,8 +1007,8 @@ class CPlusPlusRenderer extends ConvenienceRenderer_1.ConvenienceRenderer {
                     isOptional: false
                 };
                 /* junhan87 fix end */
-                cppType = this.cppType(t, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: true }, false, false, optionalProperty, json);
-                toType = this.cppType(t, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: true }, false, true, { isOptional: false }, json);
+                cppType = this.cppType(t, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: true }, false, false, optionalProperty);
+                toType = this.cppType(t, { needsForwardIndirection: true, needsOptionalIndirection: true, inJsonNamespace: true }, false, true, { isOptional: false });
                 const [getterName, ,] = Support_1.defined(this._gettersAndSettersForPropertyName.get(name));
                 let getter;
                 if (this._options.codeFormat) {

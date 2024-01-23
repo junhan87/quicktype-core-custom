@@ -141,16 +141,7 @@ class TypeGraph {
         this._parents = undefined;
         this._printOnRewrite = false;
         this._typeBuilder = typeBuilder;
-        this._integerFormatMap = new Map();    // junhan87 fix 
     }
-    // junhan87 fix start
-    get integerFormatMap() {
-        return this._integerFormatMap;
-    }
-    addIntegerFormat(key, value) {
-        this._integerFormatMap.set(key, value);
-    }
-    // junhan87 fix end
     get isFrozen() {
         return this._typeBuilder === undefined;
     }

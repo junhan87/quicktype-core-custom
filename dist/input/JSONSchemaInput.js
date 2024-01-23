@@ -697,11 +697,6 @@ function addTypesInSchema(resolver, typeBuilder, references, attributeProducers)
                             if (properties[p].required === true && required.indexOf(p) < 0) {
                                 required.push(p);
                             }
-                            // junhan87 fix start
-                            if (properties[p].format !== undefined) {
-                                typeBuilder.addIntegerFormat(p, properties[p].format);
-                            }
-                            // junhan87 fix end
                         }
                         let additionalProperties = schema.additionalProperties;
                         // This is an incorrect hack to fix an issue with a Go->Schema generator:
